@@ -544,7 +544,7 @@ void CBasePlayer::ChangeVIS(DWORD dwFlags)
 }
 void CBasePlayer::AddSpellByID(DWORD id)
 {
-	NetFood AddSpellToSpellbook;
+	BinaryWriter AddSpellToSpellbook;
 	AddSpellToSpellbook.WriteDWORD(0x02C1);
 	AddSpellToSpellbook.WriteDWORD(id);
 	AddSpellToSpellbook.WriteDWORD(0x0);

@@ -542,6 +542,7 @@ void CBasePlayer::ChangeVIS(DWORD dwFlags)
 {
 	CBaseMonster::ChangeVIS(dwFlags | PhysicsState::GRAVITY_PS);
 }
+
 void CBasePlayer::AddSpellByID(DWORD id)
 {
 	BinaryWriter AddSpellToSpellbook;
@@ -550,6 +551,7 @@ void CBasePlayer::AddSpellByID(DWORD id)
 	AddSpellToSpellbook.WriteDWORD(0x0);
 	SendMessage(AddSpellToSpellbook.GetData(), AddSpellToSpellbook.GetSize(), EVENT_MSG,true);
 }
+
 void CBasePlayer::EnterPortal()
 {
 	ChangeVIS(PhysicsState::HIDDEN_PS | PhysicsState::IGNORE_COLLISIONS_PS | PhysicsState::EDGE_SLIDE_PS);

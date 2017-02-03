@@ -152,7 +152,31 @@ CLIENT_COMMAND(tele, "<player name>", "Teleports you to a player.", BASIC_ACCESS
 
 	return false;
 }
-CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target specified, teleports to you.", BASIC_ACCESS)
+
+//FIXME: Should these commands concat like teletown??
+CLIENT_COMMAND(teleport, "<target>", "Teleports target to you.", ADMIN_ACCESS) 
+{
+	CBasePlayer* target;
+	if (argc < 1) {
+		pPlayer->SendText("No target specified.", 1);
+		return false;
+	}
+	else {
+		target = g_pWorld->FindPlayer(argv[0]);
+		if (target == NULL || target == pPlayer)
+		{
+			pPlayer->SendText("Invalid target!", 1);
+			return true;
+		}
+	}
+	target->Movement_Teleport(target->m_Origin, target->m_Angles);
+	pPlayer->SendText(std::string("Teleported: ").append(target->GetName()).c_str(), 1);
+	target->SendText(std::string(pPlayer->GetName()).append(" teleported you!").c_str(), 1);
+
+	return false;
+}
+
+CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target specified, teleports to you.", ADMIN_ACCESS)
 {
 	CBasePlayer* target;
 	if (argc < 1)
@@ -161,7 +185,7 @@ CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target 
 		target = g_pWorld->FindPlayer(argv[0]);
 		if (target == NULL)
 		{
-			pPlayer->SendText("Invalid target!",1);
+			pPlayer->SendText("Invalid target or target is self!",1);
 			return true;
 		}
 	}

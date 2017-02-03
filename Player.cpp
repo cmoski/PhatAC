@@ -670,7 +670,10 @@ DWORD CBasePlayer::SetObjectStat(eObjectStat index, DWORD value)
 
 	return CPhysicsObj::SetObjectStat(index, value);
 }
-
+CPhysicsObj* CBasePlayer::GetLastAssessedItem(CPhysicsObj* obj)
+{
+	return ppoLastAssessedItem;
+}
 void CBasePlayer::SetLastAssessedItem(CPhysicsObj* obj)
 {
 	if (dynamic_cast<CBasePlayer*>(obj) == NULL) //FIXME: Cannot delete players, other objects not removable at this time??

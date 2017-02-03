@@ -58,8 +58,11 @@ public:
 	virtual DWORD GetObjectStat(eObjectStat index);
 	virtual DWORD SetObjectStat(eObjectStat index, DWORD value);
 
+	
+
 	//cmoski -- remove last assessed item
 	void SetLastAssessedItem(CPhysicsObj * obj);
+	CPhysicsObj* GetLastAssessedItem(CPhysicsObj * obj);
 	std::string RemoveLastAssessedItem();
 	//
 

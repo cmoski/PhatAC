@@ -179,7 +179,7 @@ CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target 
 			teleportedOne = true;
 			pPlayer->SendText(std::string("Teleported: ").append(them->GetName()).c_str(), 1);
 			them->Movement_Teleport(target->m_Origin, target->m_Angles);
-			pPlayer->SendText(std::string("Teleported by: ").append(pPlayer->GetName()).c_str(), 1);
+			them->SendText(std::string("Teleported by: ").append(pPlayer->GetName()).c_str(), 1);
 		}
 
 		pit++;

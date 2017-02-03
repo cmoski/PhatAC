@@ -15,7 +15,7 @@
 
 CWorld::CWorld()
 {
-	OutputConsole("Initializing World..\r\n");
+	LOG(Temp, Normal, "Initializing World..\n");
 	m_dwHintStaticGUID = 0x10000000;
 	m_dwHintPlayerGUID = 0x50000000;
 	m_dwHintItemGUID = 0x60000000;
@@ -152,7 +152,7 @@ void CWorld::LoadDungeonsFile()
 		long lSize = fsize(wd);
 		BYTE* pbData = new BYTE[lSize];
 		long lRead = (long)fread(pbData, sizeof(BYTE), lSize, wd);
-		NetMeal input(pbData, lRead);
+		BinaryReader input(pbData, lRead);
 
 		DWORD dwDungeonCount = input.ReadDWORD();
 
@@ -192,7 +192,7 @@ void CWorld::SaveDungeonsFile()
 	FILE *wd = g_pDB->DataFileCreate("worlddesc");
 	if (wd)
 	{
-		NetFood output;
+		BinaryWriter output;
 
 		output.WriteDWORD((DWORD)m_mDungeonDescs.size());
 
@@ -303,7 +303,7 @@ DWORD CWorld::GenerateGUID(eGUIDClass type)
 		// 0x50000000 - 0x60000000
 		if (m_dwHintPlayerGUID >= 0x60000000)
 		{
-			OutputConsole("Player GUID overflow!\n");
+			LOG(Temp, Normal, "Player GUID overflow!\n");
 			return 0;
 		}
 
@@ -321,7 +321,7 @@ DWORD CWorld::GenerateGUID(eGUIDClass type)
 		/* 0x10000000 - 0x50000000 */
 		if (m_dwHintStaticGUID >= 0x50000000)
 		{
-			OutputConsole("Static GUID overflow!\n");
+			LOG(Temp, Normal, "Static GUID overflow!\n");
 			return 0;
 		}
 
@@ -333,7 +333,7 @@ DWORD CWorld::GenerateGUID(eGUIDClass type)
 		// 0xC0000000 - 0xF0000000
 		if (m_dwHintDynamicGUID >= 0xF0000000)
 		{
-			OutputConsole("Dynamic GUID overflow!\n");
+			LOG(Temp, Normal, "Dynamic GUID overflow!\n");
 			return 0;
 		}
 
@@ -345,7 +345,7 @@ DWORD CWorld::GenerateGUID(eGUIDClass type)
 		// 0x60000000 - 0xC0000000
 		if (m_dwHintItemGUID >= 0xC0000000)
 		{
-			OutputConsole("Item GUID overflow!\n");
+			LOG(Temp, Normal, "Item GUID overflow!\n");
 			return 0;
 		}
 
@@ -371,7 +371,7 @@ CLandBlock* CWorld::ActivateBlock(WORD wHeader)
 	pBlock = *ppBlock;
 	if (pBlock != NULL)
 	{
-		OutputConsole("Landblock already active!\n");
+		LOG(Temp, Normal, "Landblock already active!\n");
 		return pBlock;
 	}
 #endif
@@ -390,7 +390,7 @@ void CWorld::CreateEntity(CPhysicsObj *pEntity)
 #if _DEBUG
 	if (!pEntity->m_dwGUID)
 	{
-		OutputConsole("Null entid being placed in world.\r\n");
+		LOG(Temp, Normal, "Null entid being placed in world.\n");
 		return;
 	}
 #endif
@@ -406,6 +406,18 @@ void CWorld::CreateEntity(CPhysicsObj *pEntity)
 	}
 
 	CLandBlock *pBlock = m_pBlocks[wHeader];
+
+	if (pBlock)
+	{
+		if (pBlock->FindEntity(pEntity->m_dwGUID))
+		{
+			// DEBUGOUT("Not spawning duplicate entity!\n");
+			// Already exists.
+			delete pEntity;
+			return;
+		}
+	}
+
 	if (!pBlock)
 		pBlock = ActivateBlock(wHeader);
 
@@ -573,7 +585,7 @@ void CWorld::BroadcastPVS(DWORD dwCell, void *_data, DWORD _len, WORD _group, DW
 	}
 }
 
-void CWorld::BroadcastGlobal(NetFood *food, WORD _group, DWORD ignore_ent, BOOL _game_event, BOOL del)
+void CWorld::BroadcastGlobal(BinaryWriter *food, WORD _group, DWORD ignore_ent, BOOL _game_event, BOOL del)
 {
 	BroadcastGlobal(food->GetData(), food->GetSize(), _group, ignore_ent, _game_event);
 	if (del)
@@ -621,23 +633,23 @@ void CWorld::BroadcastGlobal(void *_data, DWORD _len, WORD _group, DWORD ignore_
 
 void CWorld::Test()
 {
-	OutputConsole("<CWorld::Test()>\r\n");
-	OutputConsole("Portal: v%lu, %lu files.\r\n", g_pPortal->GetVersion(), g_pPortal->GetFileCount());
-	OutputConsole("Cell: v%lu, %u files.\r\n", g_pCell->GetVersion(), g_pCell->GetFileCount());
-	OutputConsole("%u players:\r\n", m_mAllPlayers.size());
+	LOG(Temp, Normal, "<CWorld::Test()>\n");
+	LOG(Temp, Normal, "Portal: v%lu, %lu files.\n", g_pPortal->GetVersion(), g_pPortal->GetFileCount());
+	LOG(Temp, Normal, "Cell: v%lu, %u files.\n", g_pCell->GetVersion(), g_pCell->GetFileCount());
+	LOG(Temp, Normal, "%u players:\n", m_mAllPlayers.size());
 	for (PlayerMap::iterator pit = m_mAllPlayers.begin(); pit != m_mAllPlayers.end(); pit++)
 	{
 		CBasePlayer* pPlayer = pit->second;
-		OutputConsole("%08X %s\r\n", pPlayer->m_dwGUID, pPlayer->GetName());
+		LOG(Temp, Normal, "%08X %s\n", pPlayer->m_dwGUID, pPlayer->GetName());
 	}
-	OutputConsole("%u active blocks:\r\n", m_vBlocks.size());
+	LOG(Temp, Normal, "%u active blocks:\n", m_vBlocks.size());
 	for (LandblockVector::iterator it = m_vBlocks.begin(); it != m_vBlocks.end(); it++)
 	{
 		CLandBlock* pBlock = *it;
-		OutputConsole("%08X %lu players %lu live %lu dormant\r\n", pBlock->GetHeader() << 16, pBlock->PlayerCount(), pBlock->LiveCount(), pBlock->DormantCount());
+		LOG(Temp, Normal, "%08X %lu players %lu live %lu dormant\n", pBlock->GetHeader() << 16, pBlock->PlayerCount(), pBlock->LiveCount(), pBlock->DormantCount());
 	}
 
-	OutputConsole("</CWorld::Test()>\r\n");
+	LOG(Temp, Normal, "</CWorld::Test()>\n");
 }
 
 void CWorld::RemoveEntity(CPhysicsObj *pEntity)
@@ -911,7 +923,7 @@ void CWorld::EnumerateDungeonsFromCellData()
 					di.z = (float)(_zTrans + pt.z + 0.025f);
 
 					//if ( BLOCK_WORD( dwID ) == 0xF924 )
-					// OutputConsole("%f %f %f\r\n", di.x, di.y, di.z );
+					// LOG(Temp, Normal, "%f %f %f\n", di.x, di.y, di.z );
 
 					m_mDungeons[dungeonID] = di;
 
@@ -929,7 +941,7 @@ void CWorld::EnumerateDungeonsFromCellData()
 			}
 			else
 			{
-				OutputConsole("Dungeon block mismatch. Are portal/cell versions inconsistant?\r\n");
+				LOG(Temp, Normal, "Dungeon block mismatch. Are portal/cell versions inconsistant?\n");
 			}
 		}
 

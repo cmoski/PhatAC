@@ -621,13 +621,13 @@ void CGameDatabase::LoadTeleTownList()
 				TeleTownList_t t;
 				t.m_teleString = ResultRow[2];
 				t.loc.landcell = ParseDWORDFromStringHex(ResultRow[3]);
-				t.loc.x = ParseFloatFromStringHex(ResultRow[4]);
-				t.loc.y = ParseFloatFromStringHex(ResultRow[5]);
-				t.loc.z = ParseFloatFromStringHex(ResultRow[6]);
-				t.heading.w = ParseFloatFromStringHex(ResultRow[7]);
-				t.heading.x = ParseFloatFromStringHex(ResultRow[8]);
-				t.heading.y = ParseFloatFromStringHex(ResultRow[9]);
-				t.heading.z = ParseFloatFromStringHex(ResultRow[10]);
+				t.loc.x = atof( ResultRow[4]);
+				t.loc.y = atof(ResultRow[5]);
+				t.loc.z = atof(ResultRow[6]);
+				t.heading.w = atof(ResultRow[7]);
+				t.heading.x = atof(ResultRow[8]);
+				t.heading.y = atof(ResultRow[9]);
+				t.heading.z = atof(ResultRow[10]);
 				g_pWorld->InsertTeleportLocation(t);
 			}
 

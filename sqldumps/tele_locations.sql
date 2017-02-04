@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 01, 2017 at 10:32 AM
+-- Generation Time: Feb 04, 2017 at 12:32 PM
 -- Server version: 5.6.31
 -- PHP Version: 5.5.38
 
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `tele_locations` (
   `Orientation_X` varchar(50) NOT NULL,
   `Orientation_Y` varchar(50) NOT NULL,
   `Orientation_Z` varchar(50) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `tele_locations`
@@ -95,7 +95,14 @@ INSERT INTO `tele_locations` (`ID`, `Description`, `Command`, `Landblock`, `Posi
 (48, 'Teletown - Xarabydun', 'Xarabydun', '934B0021', '42D899D2', '40C32B22', '4191273D', 'BF76ED35', '00000000', '00000000', 'BE871A5D'),
 (49, 'Teletown - Yanshi', 'Yanshi', 'B46F001E', '42966666', '42F83333', '420AC0DB', '3F800000', '00000000', '00000000', '00000000'),
 (50, 'Teletown - Yaraq', 'Yaraq', '7D64000D', '41FF3333', '42D13333', '413F258C', '3F13BFC6', '00000000', '00000000', 'BF510F73'),
-(51, 'Teletown - Zaikhal', 'Zaikhal', '80900013', '4281B9DB', '425EBF7D', '42F80290', 'BF6E0CBF', '00000000', '00000000', 'BEBC57C1');
+(51, 'Teletown - Zaikhal', 'Zaikhal', '80900013', '4281B9DB', '425EBF7D', '42F80290', 'BF6E0CBF', '00000000', '00000000', 'BEBC57C1'),
+(52, 'Picture Room 1', 'Picture Room 1', '010F0100', '0', '0', '0', '0', '0', '0', '0'),
+(53, 'Cheese Room', 'Cheese Room', '02F90100', '0', '0', '0', '0', '0', '0', '0'),
+(54, 'Picture Room 2', 'Picture Room 2', '010E0100', '0', '0', '0', '0', '0', '0', '0'),
+(55, 'Campfire room', 'Campfire room', '02fa0100', '0', '0', '0', '0', '0', '0', '0'),
+(56, 'Picture Room 3', 'Picture Room 3', '010D0100', '0', '0', '0', '0', '0', '0', '0'),
+(57, 'AdminLS', 'AdminLS', '01110108', '0', '0', '0', '0', '0', '0', '0'),
+(58, 'Shadow Spire', 'Shadow Spire', '0B0C0103', '103.089180', '159.703033', '278.654968', '0.898204', '0', '0', '0.439579');
 
 --
 -- Indexes for dumped tables
@@ -115,7 +122,7 @@ ALTER TABLE `tele_locations`
 -- AUTO_INCREMENT for table `tele_locations`
 --
 ALTER TABLE `tele_locations`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=52;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=59;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

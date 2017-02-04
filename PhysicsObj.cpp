@@ -161,7 +161,14 @@ BinaryWriter* CPhysicsObj::CreateMessage()
 {
 	return CreateObject(this);
 }
+BinaryWriter* CPhysicsObj::UpdateMessage()
+{
+	BinaryWriter *CM = UpdateObject(this);
+	g_pWorld->BroadcastPVS(GetLandcell(), CM->GetData(), CM->GetSize());
+	delete CM;
 
+	return CM;
+}
 void CPhysicsObj::RemovePreviousInstance()
 {
 	DWORD RPI[3];
@@ -198,7 +205,6 @@ void CPhysicsObj::UpdateModel()
 BinaryWriter* CPhysicsObj::GetModelData()
 {
 	ModelInfo miCurrentModel;// = m_miBaseModel;
-
 	miCurrentModel.bUnknown = m_miBaseModel.bUnknown;		//0x11
 	miCurrentModel.dwBasePalette = m_miBaseModel.dwBasePalette;
 	miCurrentModel.MergeData(&m_miBaseModel, NULL);

@@ -56,6 +56,20 @@ void BinaryWriter::AppendString(const char *szString)
 	Align();
 }
 
+void BinaryWriter::AppendStringW(const wchar_t *szString)
+{
+	if (szString)
+	{
+		WORD len = (WORD)lstrlenW(szString);
+		AppendData(&len, sizeof(WORD));
+		AppendData(szString, len);
+	}
+	else
+		AppendData((WORD)0);
+
+	Align();
+}
+
 void BinaryWriter::AppendData(const void *pData, size_t len)
 {
 	ExpandBuffer(m_dwSize + len);

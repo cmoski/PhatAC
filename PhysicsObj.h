@@ -115,6 +115,7 @@ public:
 
 	//Generic network messages.
 	virtual BinaryWriter* CreateMessage(void);
+	BinaryWriter * UpdateMessage();
 	virtual BinaryWriter* GetModelData(void);
 	virtual void UpdateModel(void);
 

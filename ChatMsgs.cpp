@@ -25,6 +25,50 @@ BinaryWriter *LocalChat(const char *szText, const char *szName, DWORD dwSourceID
 	MESSAGE_END(LocalChat);
 }
 
+BinaryWriter *SetTurbineChatChannels(DWORD dwSourceID)
+{
+	MESSAGE_BEGIN(SetTurbineChatChannels);
+	SetTurbineChatChannels->WriteDWORD(0x0295);
+	SetTurbineChatChannels->WriteDWORD(0x90);
+	SetTurbineChatChannels->WriteDWORD(0x260D);
+	SetTurbineChatChannels->WriteDWORD(0x260E);
+	SetTurbineChatChannels->WriteDWORD(0x260F);
+	SetTurbineChatChannels->WriteDWORD(0x2610);
+	SetTurbineChatChannels->WriteDWORD(0x2614);
+	SetTurbineChatChannels->WriteDWORD(0x0);
+	SetTurbineChatChannels->WriteDWORD(0x2611);
+	SetTurbineChatChannels->WriteDWORD(0x2612);
+	SetTurbineChatChannels->WriteDWORD(0x2613);
+	MESSAGE_END(SetTurbineChatChannels);
+}
+
+//0x01, inbound, 0x03, outbound
+BinaryWriter *TurbineChat(DWORD sender)
+{
+	BinaryWriter* payload = new BinaryWriter();
+	payload->WriteDWORD(0x01); //Outbound
+	payload->WriteDWORD(0x02); //Channel Number
+	payload->WriteStringW(L"+Admin Pea");
+	payload->WriteStringW(L"Suck on it.");
+	payload->WriteDWORD(0);
+	payload->WriteDWORD(sender);
+	payload->WriteDWORD(0);
+	payload->WriteDWORD(0);
+
+	BinaryWriter* msg = new BinaryWriter();
+
+	msg->WriteDWORD(0xF7DE);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(0);
+	msg->WriteDWORD(payload->GetSize());
+	msg->WriteData(payload->GetData(),payload->GetSize());
+	
+	MESSAGE_END(msg);
+}
 BinaryWriter *EmoteChat(const char* szText, const char* szName, DWORD dwSourceID)
 {
 	MESSAGE_BEGIN(EmoteChat);
@@ -118,7 +162,7 @@ BinaryWriter *ChannelChat(DWORD dwChannel, const char* szName, const char* szTex
 {
 	MESSAGE_BEGIN(ChannelChat);
 
-	ChannelChat->WriteDWORD(0x14A);
+	ChannelChat->WriteDWORD(0x147);
 	ChannelChat->WriteDWORD(dwChannel);
 	ChannelChat->WriteString(szName);
 	ChannelChat->WriteString(szText);

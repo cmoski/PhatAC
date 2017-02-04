@@ -154,7 +154,7 @@ CLIENT_COMMAND(tele, "<player name>", "Teleports you to a player.", BASIC_ACCESS
 }
 
 //FIXME: Should these commands concat like teletown??
-CLIENT_COMMAND(teleport, "<target>", "Teleports target to you.", ADMIN_ACCESS) 
+CLIENT_COMMAND(teleport, "<target>", "Teleports target to you.", BASIC_ACCESS) 
 {
 	CBasePlayer* target;
 	if (argc < 1) {
@@ -176,7 +176,7 @@ CLIENT_COMMAND(teleport, "<target>", "Teleports target to you.", ADMIN_ACCESS)
 	return false;
 }
 
-CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target specified, teleports to you.", ADMIN_ACCESS)
+CLIENT_COMMAND(teleall, "<target>", "Teleports all players target. If no target specified, teleports to you.", BASIC_ACCESS)
 {
 	CBasePlayer* target;
 	if (argc < 1)
@@ -398,9 +398,21 @@ CLIENT_COMMAND(targetdrudge, "", "Spawns a Target Drudge.", BASIC_ACCESS)
 	return false;
 }
 
-CLIENT_COMMAND(spawnwand, "", "Spawns a wand.", BASIC_ACCESS)
+CLIENT_COMMAND(spawnwand, "<model=0x9CC>", "Spawns a wand.", BASIC_ACCESS)
 {
+	WORD wModelID = 0x9CC;
+	if (stricmp(argv[0], "globe") == 0)
+	{
+		wModelID = 09E7;
+	}
+	else if (strlen(argv[0]) < 6)
+	{
+		//by ID
+		wModelID = (WORD)strtoul(argv[0], NULL, 16);
+	}
+
 	CBaseWand* pWand = new CBaseWand();
+	pWand->m_dwModel = wModelID;
 	pWand->m_dwGUID = g_pWorld->GenerateGUID(eItemGUID);
 	pWand->m_Origin.landcell = pPlayer->GetLandcell();
 	pWand->m_Origin.x = pPlayer->m_Origin.x;
@@ -737,15 +749,102 @@ CLIENT_COMMAND(animation, "<index> [speed=1]", "Plays a primary animation.", BAS
 
 	return false;
 }
-CLIENT_COMMAND(setmodel, "<model>", "Allows you to set your model", BASIC_ACCESS)
+CLIENT_COMMAND(setmodel, "<model> <scale>", "Allows you to set your model", BASIC_ACCESS)
 {
 	if (argc < 1)
 		return true;
 
+	float fScale = (argc >= 2) ? (float)atof(argv[1]) : 1.0f;
+	CBaseMonster* d;
+	if (stricmp(argv[0], "targetdrudge") == 0)
+	{
+		d = new CTargetDrudge();
+	}
+	else if (stricmp(argv[0], "baelzharon") == 0)
+	{
+		d = new CBaelZharon();
+		d->m_dwAnimationSet = 0x09000001;
+		d->m_dwModel = 0x0200099E;
+		d->m_dwSoundSet = 0x20000002;
+		d->m_dwEffectSet = 0x34000004;
+		d->m_fScale = 1.0f;
+	}
+	else if (stricmp(argv[0], "asheron") == 0)
+	{
+		d = new CBaelZharon();
+		d->m_dwAnimationSet = 0x09000001;
+		d->m_dwModel = 0x020009C8;
+		d->m_dwSoundSet = 0x20000002;
+		d->m_dwEffectSet = 0x34000004;
+		d->m_fScale = 1.0f;
+
+	}
+	else if (stricmp(argv[0], "female") == 0)
+	{
+		d = new CBaseMonster();
+		d->m_dwAnimationSet = 0x09000001;
+		d->m_dwModel = 0x0200004E;
+		d->m_dwSoundSet = 0x20000002;
+		d->m_dwEffectSet = 0x34000004;
+	
+	}
+	else if (stricmp(argv[0], "shard") == 0)
+	{
+		d = new CBaseMonster();
+		d->m_dwModel = 0x02000700;
+		d->m_fScale = 1.6f;
+		DWORD palette = (unsigned short)strtoul(argv[0], NULL, 16);
+		d->m_miBaseModel.dwBasePalette = 0xBEF;
+		d->m_miBaseModel.lPalettes.push_back(PaletteRpl(palette, 0x00, 0x00));
+	}
+	else if (stricmp(argv[0], "revert") == 0)
+	{
+		//pPlayer->Precache();
+		//d = 0;
+	}
+	else
+	{
+		if (strlen(argv[0]) < 6)
+		{
+			//by ID
+			WORD wModelID = (WORD)strtoul(argv[0], NULL, 16);
+			d = new CBaseMonster();
+			d->m_dwAnimationSet = 0x09000001;
+			d->m_dwModel = 0x02000000 + wModelID;
+			d->m_dwSoundSet = 0x20000002;
+			d->m_dwEffectSet = 0x34000004;
+		}
+		else {
+			pPlayer->SendText("Valid models are targetdrudge, baelzharon, shard, and female!", 1);
+			return true;
+		}
+	}
+	d->m_fScale = 1.0f;
+
 	WORD wIndex = atoi(argv[0]);
 
-	pPlayer->m_dwModel = 0x02000000 + wIndex;
+	if(d != 0) {
+	pPlayer->m_dwModel = d->m_dwModel;
+	//pPlayer->m_fScale = d->m_fScale;
+	pPlayer->m_fScale = fScale;
+	pPlayer->m_dwAnimationSet = d->m_dwAnimationSet;
+	pPlayer->m_dwSoundSet = d->m_dwSoundSet;
+	pPlayer->m_dwEffectSet = d->m_dwEffectSet;
+	pPlayer->m_dwModel = d->m_dwModel;
 
+	
+	pPlayer->m_miBaseModel.ClearInfo();
+	pPlayer->m_miBaseModel = d->m_miBaseModel;
+	}
+
+	pPlayer->UpdateMessage();
+	
+	pPlayer->UpdateModel();
+	pPlayer->MakeAware(pPlayer);
+	//pPlayer->CreateMessage();
+	 delete d;
+	//pPlayer->RemovePreviousInstance();
+	//pPlayer->Precache();
 	return false;
 }
 CLIENT_COMMAND(invisible, "", "Go Invisible", BASIC_ACCESS)

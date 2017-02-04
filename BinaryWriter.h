@@ -10,6 +10,7 @@ public:
 	void ExpandBuffer(size_t len);
 
 	void AppendString(const char *szString);
+	void AppendStringW(const wchar_t * szString);
 	void AppendData(const void *pData, size_t len);
 	void Align(void);
 
@@ -41,6 +42,7 @@ public:
 	}
 
 	__forceinline void WriteString(const char *f00d) { AppendString(f00d); }
+	__forceinline void WriteStringW(const wchar_t *f00d) { AppendStringW(f00d); }
 	__forceinline void WriteData(const void *data, size_t len) { AppendData(data, len); }
 
 	BYTE*	GetData();

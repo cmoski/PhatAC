@@ -12,3 +12,5 @@ extern BinaryWriter *EmoteChat(const char *szText, const char* szName, DWORD dwS
 extern BinaryWriter *ServerText(const char *szText, long lColor = 0);
 extern BinaryWriter *ServerBroadcast(const char *szSource, const char *szText, long lColor = 0);
 extern BinaryWriter *DirectChat(const char* szText, const char* szName, DWORD dwSourceID, DWORD dwDestID, long lColor);
+extern BinaryWriter *SetTurbineChatChannels(DWORD dwSourceID);
+extern BinaryWriter *TurbineChat(DWORD dwSourceID);

@@ -26,6 +26,8 @@
 // Command access
 #include "ClientCommands.h"
 
+//Chat msgs
+#include "ChatMsgs.h"
 
 ///////////
 // Name: CClient
@@ -255,6 +257,10 @@ void CClient::EnterWorld()
 	LOG(Client, Normal, "Client #%u is entering the world.\n", m_vars.slot);
 
 	m_vars.inworld = TRUE;
+
+	BinaryWriter * b = SetTurbineChatChannels(0);
+	SendNetMessage(b, PRIVATE_MSG, false);
+
 }
 
 void CClient::ExitWorld()
@@ -756,10 +762,87 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
 
 			break;
 		}
+		case 0xF7DE:
+		{
+			DWORD size = in.ReadDWORD();
+			DWORD TurbineChatType = in.ReadDWORD(); //0x1 Inbound, 0x3 Outbound, 0x5 Outbound Ack
+			DWORD unk1 = in.ReadDWORD();
+			DWORD unk2 = in.ReadDWORD();
+			DWORD unk3 = in.ReadDWORD();
+			DWORD unk4 = in.ReadDWORD();
+			DWORD unk5 = in.ReadDWORD();
+			DWORD unk6 = in.ReadDWORD();
+			DWORD payload = in.ReadDWORD();
+
+			if (TurbineChatType == 0x3) //0x3 Outbound
+			{
+				DWORD channel = in.ReadDWORD(); // unk2 above?
+				DWORD channel_unk = in.ReadDWORD();  //unk1 above?
+				DWORD channel_unk2 = in.ReadDWORD();
+				DWORD listening_channel = in.ReadDWORD(); // ListeningChannel in SetTurbineChatChannels (0x000BEEF0-9)
+				char *message = in.ReadWStringToString();
+
+				DWORD playerGUID = in.ReadDWORD();
+				DWORD ob_unknown = in.ReadDWORD(); //Always 0?
+				DWORD ob_unknown2 = in.ReadDWORD(); 
+
+				wchar_t* text = L"Hello.";
+
+				BinaryWriter payload;
+				payload.WriteDWORD(0x30+(lstrlenW(text)*2)); //Size of Follow
+				payload.WriteDWORD(0x01); //Inbound Message
+				payload.WriteDWORD(unk1);
+				payload.WriteDWORD(unk2);
+				payload.WriteDWORD(unk3);
+				payload.WriteDWORD(unk4);
+				payload.WriteDWORD(unk5);
+				payload.WriteDWORD(unk6);
+
+				payload.WriteDWORD(listening_channel); //Channel Number
+				payload.WriteStringW(text); // Text
+				payload.WriteStringW(text);
+				payload.WriteDWORD(listening_channel); // Unkown
+				payload.WriteDWORD(playerGUID+1); //Object ID of Sender
+				payload.WriteDWORD(listening_channel); //Unk
+				payload.WriteDWORD(listening_channel); //Unk
+
+				SendNetMessage(payload.GetData(), payload.GetSize(), EVENT_MSG);
+				SendNetMessage(payload.GetData(), payload.GetSize(), 9);
+				SendNetMessage(payload.GetData(), payload.GetSize(), 10);
+
+ 				//Reply inbound ack
+				BinaryWriter SendAck;
+				SendAck.WriteDWORD(0xF7DE);
+				SendAck.WriteDWORD(0x28); // 40 bytes follow
+				SendAck.WriteDWORD(unk1);
+				SendAck.WriteDWORD(unk2);
+				SendAck.WriteDWORD(unk3);
+				SendAck.WriteDWORD(unk4);
+				SendAck.WriteDWORD(unk5);
+				SendAck.WriteDWORD(unk6);
+				SendAck.WriteDWORD(16); // 40 bytes follow
+				SendAck.WriteDWORD(listening_channel);
+				SendAck.WriteDWORD(listening_channel);
+				SendAck.WriteDWORD(listening_channel);
+				SendAck.WriteDWORD(listening_channel);
+				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), EVENT_MSG);
+				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), 9);
+				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), 10);
+				//g_pWorld->BroadcastGlobal(ChannelChat(listening_channel, m_pEvents->GetPlayer()->GetName(), message), PRIVATE_MSG, m_pEvents->GetPlayerID(), TRUE);
+				g_pWorld->BroadcastGlobal(ServerText(csprintf("%s says to your fellow testers on  channel %x, \"%s\"", m_pEvents->GetPlayer()->GetName(), listening_channel, message), 9), PRIVATE_MSG, m_pEvents->GetPlayerID(), TRUE);
+
+
+				m_pEvents->SendText(message, 9);
+				
+			}
+			
+			break;
+		}
 		default:
 			LOG(Client, Warning, "Unhandled message %08X from the client.\n", dwMessageCode);
 			break;
 	}
+
 
 	//if ( dwMessageCode != 0xF7B1 )
 	//	LOG(Temp, Normal, "Received message %04X\n", dwMessageCode);

@@ -17,6 +17,8 @@
 class CClient;
 struct BlockData;
 
+bool LoadDataFromFile(const char *filepath, BYTE **data, DWORD *length);
+
 extern void MsgBox(const char* format, ...);
 extern void MsgBox(UINT iType, const char* format, ...);
 extern void MsgBoxError(DWORD dwError, const char* event);
@@ -29,6 +31,11 @@ extern char* timestamp(); //static buffer
 extern void strtrim(char *szText); //specified buffer
 extern BOOL strmask(const char* szTest, const char* szMask);
 extern long fsize(FILE* fp); //returns a FILE* size
+
+unsigned long ResolveIPFromHost(const char *host);
+
+unsigned long GetLocalIP();
+std::string GetLocalIPString();
 
 extern std::string DebugBytesToString(void *data, unsigned int len);
 extern void _OutputConsole(const char* format, ...);

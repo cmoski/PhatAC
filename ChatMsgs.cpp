@@ -49,7 +49,7 @@ BinaryWriter *TurbineChat(DWORD sender)
 	payload->WriteDWORD(0x01); //Outbound
 	payload->WriteDWORD(0x02); //Channel Number
 	payload->WriteStringW(L"+Admin Pea");
-	payload->WriteStringW(L"Suck on it.");
+	payload->WriteStringW(L"Test");
 	payload->WriteDWORD(0);
 	payload->WriteDWORD(sender);
 	payload->WriteDWORD(0);

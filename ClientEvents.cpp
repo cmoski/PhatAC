@@ -266,6 +266,7 @@ void CClientEvents::ChannelText(DWORD dwChannel, const char* szText)
 
 	// 0x00000400 = Urgent Assistance "help channel"
 	// 0x00000800 = Fellowship
+	// 0x00000002 = Admin Channel
 	switch (dwChannel)
 	{
 	case 0x400:
@@ -273,6 +274,8 @@ void CClientEvents::ChannelText(DWORD dwChannel, const char* szText)
 		//For now we'll just spam them to everyone!
 		// g_pWorld->BroadcastGlobal(ChannelChat(dwChannel, m_pPlayer->GetName(), szText), PRIVATE_MSG, m_pPlayer->m_dwGUID, TRUE);
 		g_pWorld->BroadcastGlobal(ServerText(csprintf("%s says to your fellow testers, \"%s\"", m_pPlayer->GetName(), szText), 3), PRIVATE_MSG, m_pPlayer->m_dwGUID, TRUE);
+	case 0x2:
+		g_pWorld->BroadcastGlobal(ServerText(csprintf("%s says on the admin channel, \"%s\"", m_pPlayer->GetName(), szText), 9), PRIVATE_MSG, m_pPlayer->m_dwGUID, TRUE);
 	}
 
 	//Give a special copy to this player?
@@ -281,6 +284,9 @@ void CClientEvents::ChannelText(DWORD dwChannel, const char* szText)
 	case 0x400:
 	case 0x800:
 		m_pClient->SendNetMessage(ServerText(csprintf("You say to your fellow testers, \"%s\"", szText), 3), PRIVATE_MSG, TRUE);
+		break;
+	case 0x2:
+		m_pClient->SendNetMessage(ServerText(csprintf("You say on admin channel, \"%s\"", szText), 8), PRIVATE_MSG, TRUE);
 		break;
 	default:
 		SendText("The server does not support this channel.", 1);
@@ -1045,6 +1051,47 @@ void CClientEvents::ProcessEvent(BinaryReader *in)
 
 			m_pPlayer->Movement_UpdatePos();
 			break;
+		}
+		case 0x05: //PlayerOptionChange
+		{
+			DWORD option = in->ReadDWORD();
+			bool optionSet = in->ReadBYTE();
+			
+			if (option == 0x23)
+			{
+				if(optionSet)
+					SendText("Joined General Channel!", 9);
+				else
+					SendText("Left General Channel!", 9);
+			}
+			if (option == 0x24)
+			{
+				if (optionSet)
+					SendText("Joined Trade Channel!", 9);
+				else
+					SendText("Left Trade Channel!", 9);
+			}
+			if (option == 0x25)
+			{
+				if (optionSet)
+					SendText("Joined LFG Channel!", 9);
+				else
+					SendText("Left LFG Channel!", 9);
+			}
+			if (option == 0x26)
+			{
+				if (optionSet)
+					SendText("Joined Roleplay Channel!", 9);
+				else
+					SendText("Left Roleplay Channel!", 9);
+			}
+			if (option == 0x1B)
+			{
+				if (optionSet)
+					SendText("Joined Allegiance Channel!", 9);
+				else
+					SendText("Left Allegiance Channel!", 9);
+			}
 		}
 		default:
 		{

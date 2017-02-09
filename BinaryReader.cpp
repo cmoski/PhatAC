@@ -68,7 +68,23 @@ char *BinaryReader::ReadString(void)
 
 	return szString;
 }
-
+char* BinaryReader::ReadWStringToString(void)
+{
+	BYTE wLen_sent = (ReadByte())+2; //We get 2 additional charecters
+	
+	if (m_dwErrorCode)
+	{
+#if _DEBUG
+		__asm int 3;
+#endif
+		return NULL;
+	}
+	wchar_t *szArray = (wchar_t *)ReadArray(wLen_sent*sizeof(wchar_t));
+	char *szwString = new char[wLen_sent-1];
+	int len = wcstombs(szwString, szArray, wLen_sent-2);
+	szwString[wLen_sent-2] = 0;
+	return szwString;
+}
 BYTE *BinaryReader::GetDataStart()
 {
 	return m_pStart;

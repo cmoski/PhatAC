@@ -106,7 +106,7 @@ public:
 	void ReadAlign(void);
 	void *ReadArray(size_t size);
 	char *ReadString(void);
-
+	char *ReadWStringToString(void);
 	BYTE *GetDataStart(void);
 	BYTE *GetDataPtr(void);
 	BYTE *GetDataEnd(void);

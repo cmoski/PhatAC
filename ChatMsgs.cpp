@@ -27,33 +27,39 @@ BinaryWriter *LocalChat(const char *szText, const char *szName, DWORD dwSourceID
 
 BinaryWriter *SetTurbineChatChannels(DWORD dwSourceID)
 {
+	//Enable all chat channels, this ID comes back with each send
 	MESSAGE_BEGIN(SetTurbineChatChannels);
-	SetTurbineChatChannels->WriteDWORD(0x0295);
-	SetTurbineChatChannels->WriteDWORD(0x90);
-	SetTurbineChatChannels->WriteDWORD(0x260D);
-	SetTurbineChatChannels->WriteDWORD(0x260E);
-	SetTurbineChatChannels->WriteDWORD(0x260F);
-	SetTurbineChatChannels->WriteDWORD(0x2610);
-	SetTurbineChatChannels->WriteDWORD(0x2614);
-	SetTurbineChatChannels->WriteDWORD(0x0);
-	SetTurbineChatChannels->WriteDWORD(0x2611);
-	SetTurbineChatChannels->WriteDWORD(0x2612);
-	SetTurbineChatChannels->WriteDWORD(0x2613);
+	SetTurbineChatChannels->WriteDWORD(0x295);
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF0); // Allegiance channel ID
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF1); // General channel ID
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF2); // Trade channel ID
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF3); // LFG channel ID 
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF4); // Roleplay channel ID
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF5); // Olthoi ?
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF6); // Socety
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF7);
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF8);
+	SetTurbineChatChannels->WriteDWORD(0xDEDBEEF9);
 	MESSAGE_END(SetTurbineChatChannels);
 }
 
 //0x01, inbound, 0x03, outbound
 BinaryWriter *TurbineChat(DWORD sender)
 {
+	wchar_t* text = L"Hello.";
+
 	BinaryWriter* payload = new BinaryWriter();
-	payload->WriteDWORD(0x01); //Outbound
-	payload->WriteDWORD(0x02); //Channel Number
-	payload->WriteStringW(L"+Admin Pea");
-	payload->WriteStringW(L"Test");
-	payload->WriteDWORD(0);
+	payload->WriteDWORD(0x01); //Inbound Message
+
+
+	payload->WriteDWORD(0x000BEEF0); //Channel Number
+	payload->WriteStringW(text); // Text
+	payload->WriteDWORD(0); // Unknown
 	payload->WriteDWORD(sender);
 	payload->WriteDWORD(0);
 	payload->WriteDWORD(0);
+		
+	
 
 	BinaryWriter* msg = new BinaryWriter();
 

@@ -776,8 +776,8 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
 
 			if (TurbineChatType == 0x3) //0x3 Outbound
 			{
-				DWORD channel = in.ReadDWORD(); // unk2 above?
-				DWORD channel_unk = in.ReadDWORD();  //unk1 above?
+				DWORD serial = in.ReadDWORD(); // serial of this character's chat
+				DWORD channel_unk = in.ReadDWORD();  
 				DWORD channel_unk2 = in.ReadDWORD();
 				DWORD listening_channel = in.ReadDWORD(); // ListeningChannel in SetTurbineChatChannels (0x000BEEF0-9)
 				char *message = in.ReadWStringToString();
@@ -787,24 +787,26 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
 				DWORD ob_unknown2 = in.ReadDWORD(); 
 
 				wchar_t* text = L"Hello.";
+				wchar_t* userName = L"cmoski";
 
 				BinaryWriter payload;
-				payload.WriteDWORD(0x30+(lstrlenW(text)*2)); //Size of Follow
+				payload.WriteDWORD(0x34+(lstrlenW(text)+lstrlenW(userName))); //Size of Follow
 				payload.WriteDWORD(0x01); //Inbound Message
-				payload.WriteDWORD(unk1);
-				payload.WriteDWORD(unk2);
-				payload.WriteDWORD(unk3);
-				payload.WriteDWORD(unk4);
-				payload.WriteDWORD(unk5);
-				payload.WriteDWORD(unk6);
+				payload.WriteDWORD(0x01);
+				payload.WriteDWORD(0x01); // same as unk2 above, could be coincidence
+				payload.WriteDWORD(0x000B0067); // Bitfield of channel subscriptions?
+				payload.WriteDWORD(0x01); //related to Bitfield?
+				payload.WriteDWORD(0x000B0067); // Bitfield of channel subscriptions?
+				payload.WriteDWORD(0x00); //related to Bitfield?
 
+				payload.WriteDWORD(0x20+(lstrlenW(text)+lstrlenW(userName))); // Size to follow
 				payload.WriteDWORD(listening_channel); //Channel Number
-				payload.WriteStringW(text); // Text
-				payload.WriteStringW(text);
-				payload.WriteDWORD(listening_channel); // Unkown
-				payload.WriteDWORD(playerGUID+1); //Object ID of Sender
-				payload.WriteDWORD(listening_channel); //Unk
-				payload.WriteDWORD(listening_channel); //Unk
+				payload.WriteStringW(userName); // character name len+UTF-16 string
+				payload.WriteStringW(text); // the text
+				payload.WriteDWORD(0x0C); // Unkown / EOT?
+				payload.WriteDWORD(playerGUID+1); //Object ID of Sender  Why the +1?!
+				payload.WriteDWORD(0x00); //Unk
+				payload.WriteDWORD(0x02); //Unk
 
 				SendNetMessage(payload.GetData(), payload.GetSize(), EVENT_MSG);
 				SendNetMessage(payload.GetData(), payload.GetSize(), 9);
@@ -813,18 +815,19 @@ void CClient::ProcessMessage(BYTE *data, DWORD length, WORD group)
  				//Reply inbound ack
 				BinaryWriter SendAck;
 				SendAck.WriteDWORD(0xF7DE);
-				SendAck.WriteDWORD(0x28); // 40 bytes follow
-				SendAck.WriteDWORD(unk1);
-				SendAck.WriteDWORD(unk2);
-				SendAck.WriteDWORD(unk3);
-				SendAck.WriteDWORD(unk4);
-				SendAck.WriteDWORD(unk5);
-				SendAck.WriteDWORD(unk6);
-				SendAck.WriteDWORD(16); // 40 bytes follow
-				SendAck.WriteDWORD(listening_channel);
-				SendAck.WriteDWORD(listening_channel);
-				SendAck.WriteDWORD(listening_channel);
-				SendAck.WriteDWORD(listening_channel);
+				SendAck.WriteDWORD(0x30); // 48 bytes follow
+				SendAck.WriteDWORD(0x05); // This is the ACK flag
+				SendAck.WriteDWORD(0x02); // Unk
+				SendAck.WriteDWORD(0x01); //Unk
+				SendAck.WriteDWORD(0x000B0067); // Bitfield of channel subscriptions?
+				SendAck.WriteDWORD(0x01); //related to Bitfield?
+				payload.WriteDWORD(0x000B0067); // Bitfield of channel subscriptions?
+				payload.WriteDWORD(0x00); //related to bitfield?
+				SendAck.WriteDWORD(0x10); // 16 bytes follow
+				SendAck.WriteDWORD(serial); //serial given in received message
+				SendAck.WriteDWORD(0x02);
+				SendAck.WriteDWORD(0x02);
+				SendAck.WriteDWORD(0x00);
 				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), EVENT_MSG);
 				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), 9);
 				SendNetMessage(SendAck.GetData(), SendAck.GetSize(), 10);
